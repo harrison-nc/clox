@@ -2,6 +2,7 @@
 
 #include "debug.h"
 #include "common.h"
+#include "value.h"
 
 void disassembleChunk(Chunk *chunk, const char *name)
 {
@@ -11,6 +12,15 @@ void disassembleChunk(Chunk *chunk, const char *name)
     {
         offset = disassembleInstruction(chunk, offset);
     }
+}
+
+static int constantInstruction(const char* name, Chunk *chunk, int offset)
+{
+    Byte constant = chunk->code[offset + 1];
+    printf("%-16s %4d '", name, constant);
+    printValue(chunk->constants.values[constant]);
+    print("'\n");
+    return offset + 2;
 }
 
 static int simpleInstruction(const char* name, int offset)
@@ -26,6 +36,8 @@ int disassembleInstruction(Chunk *chunk, int offset)
     Byte instruction = chunk->code[offset];
     switch(instruction)
     {
+        case OP_CONSTANT:
+            return constantInstruction("OP_CONSTANT", chunk, offset);
         case OP_RETURN:
             return simpleInstruction("OP_RETURN", offset);
         default:
