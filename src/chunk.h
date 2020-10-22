@@ -10,7 +10,8 @@ typedef enum
     OP_RETURN,
 } OpCode;
 
-typedef struct {
+typedef struct
+{
     int count;
     int capacity;
     Byte *code;
