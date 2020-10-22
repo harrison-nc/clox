@@ -5,6 +5,7 @@ flags = -c -o
 main: main.o memory.o value.o chunk.o debug.o
 	@cc -o $(build_dir)/main  \
 		$(build_dir)/memory.o \
+		$(build_dir)/value.o  \
 		$(build_dir)/chunk.o  \
 		$(build_dir)/debug.o  \
 		$(build_dir)/main.o
@@ -28,6 +29,11 @@ debug.o: $(source_dir)/debug.c $(source_dir)/debug.h
 	@cc $(flags) \
 		$(build_dir)/debug.o \
 		$(source_dir)/debug.c
+
+value.o: $(source_dir)/value.c $(source_dir)/value.h
+	@cc $(flags) \
+		$(build_dir)/value.o \
+		$(source_dir)/value.c
 
 clean:
 	@rm -r $(build_dir)
