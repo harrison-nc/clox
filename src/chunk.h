@@ -3,8 +3,6 @@
 
 #include "common.h"
 
-typedef uint8_t Byte;
-
 typedef enum
 {
     OP_RETURN,
