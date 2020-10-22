@@ -36,4 +36,5 @@ value.o: $(source_dir)/value.c $(source_dir)/value.h
 		$(source_dir)/value.c
 
 clean:
-	@rm -r $(build_dir)
+	@rm $(build_dir)/*.o
+	@rm $(build_dir)/main
