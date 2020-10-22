@@ -1,20 +1,33 @@
 build_dir = build
 source_dir = src
+flags = -c -o
 
-main: main.o
-	@cc -o $(build_dir)/main $(build_dir)/chunk.o $(build_dir)/memory.o $(build_dir)/debug.o $(build_dir)/main.o
+main: main.o memory.o value.o chunk.o debug.o
+	@cc -o $(build_dir)/main  \
+		$(build_dir)/memory.o \
+		$(build_dir)/chunk.o  \
+		$(build_dir)/debug.o  \
+		$(build_dir)/main.o
 
 main.o: $(source_dir)/main.c
-	@cc $(source_dir)/main.c -c -o $(build_dir)/main.o
+	@cc $(flags) \
+		$(build_dir)/main.o \
+		$(source_dir)/main.c
 
-chunk.o: $(source_dir)/chunk.c
-	@cc $(source_dir)/chunk.c -c -o $(build_dir)/chunk.o
+chunk.o: $(source_dir)/chunk.c $(source_dir)/chunk.h
+	@cc $(flags) \
+		$(build_dir)/chunk.o \
+		$(source_dir)/chunk.c
 
-memory.o: $(source_dir)/memory.c
-	@cc $(source_dir)/memory.c -c -o $(build_dir)/memory.o
+memory.o: $(source_dir)/memory.c $(source_dir)/memory.h
+	@cc $(flags) \
+		$(build_dir)/memory.o \
+		$(source_dir)/memory.c
 
-debug.o: $(source_dir)/debug.h
-	@cc $(source_dir)/debug.c -c -o $(build_dir)/debug.o
+debug.o: $(source_dir)/debug.c $(source_dir)/debug.h
+	@cc $(flags) \
+		$(build_dir)/debug.o \
+		$(source_dir)/debug.c
 
 clean:
 	@rm -r $(build_dir)
