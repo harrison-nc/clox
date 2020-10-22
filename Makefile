@@ -2,7 +2,7 @@ build_dir = build
 source_dir = src
 
 main: main.o
-	@cc -o $(build_dir)/main $(build_dir)/chunk.o $(build_dir)/memory.o $(build_dir)/main.o
+	@cc -o $(build_dir)/main $(build_dir)/chunk.o $(build_dir)/memory.o $(build_dir)/debug.o $(build_dir)/main.o
 
 main.o: $(source_dir)/main.c
 	@cc $(source_dir)/main.c -c -o $(build_dir)/main.o
@@ -12,6 +12,9 @@ chunk.o: $(source_dir)/chunk.c
 
 memory.o: $(source_dir)/memory.c
 	@cc $(source_dir)/memory.c -c -o $(build_dir)/memory.o
+
+debug.o: $(source_dir)/debug.h
+	@cc $(source_dir)/debug.c -c -o $(build_dir)/debug.o
 
 clean:
 	@rm -r $(build_dir)
