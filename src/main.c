@@ -3,7 +3,7 @@
 #include "debug.h"
 #include "vm.h"
 
-int main(int argc, const char *argv[])
+void opConstant()
 {
     initVM();
 
@@ -34,5 +34,33 @@ int main(int argc, const char *argv[])
 
     freeVM();
     freeChunk(&chunk);
+}
+
+void opConstantLong()
+{
+    Chunk chunk;
+    initChunk(&chunk);
+
+    int line = 124;
+
+    writeConstant(&chunk, 10.0, line);
+
+    line++;
+
+    int constant = addConstant(&chunk, 5.5);
+    writeChunk(&chunk, OP_CONSTANT, line);
+    writeChunk(&chunk, constant, line);
+
+    line++;
+    writeChunk(&chunk, OP_RETURN, line);
+
+    disassembleChunk(&chunk, "test constant long");
+    freeChunk(&chunk);
+}
+
+int main(int argc, const char *argv[])
+{
+    opConstant();
+    opConstantLong();
     return 0;
 }
