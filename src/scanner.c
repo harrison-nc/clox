@@ -20,7 +20,7 @@ void initScanner(const char *source)
     scanner.line = 1;
 }
 
-static bool inAtEnd()
+static bool isAtEnd()
 {
     return *scanner.current == '\0';
 }
