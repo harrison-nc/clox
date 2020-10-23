@@ -3,14 +3,14 @@ source_dir = src
 flags = -c -o
 
 main: main.o memory.o scanner.o compiler.o value.o chunk.o vm.o debug.o
-	@cc -o $(build_dir)/main  \
-		$(build_dir)/memory.o \
-		$(build_dir)/scanner.o \
-		$(build_dir)/compiler.o \
-		$(build_dir)/value.o  \
-		$(build_dir)/chunk.o  \
-		$(build_dir)/vm.o     \
-		$(build_dir)/debug.o  \
+	@cc -o $(build_dir)/main      \
+		$(build_dir)/memory.o     \
+		$(build_dir)/scanner.o    \
+		$(build_dir)/compiler.o   \
+		$(build_dir)/value.o      \
+		$(build_dir)/chunk.o      \
+		$(build_dir)/vm.o         \
+		$(build_dir)/debug.o      \
 		$(build_dir)/main.o
 
 main.o: $(source_dir)/main.c
