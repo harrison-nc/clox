@@ -5,8 +5,6 @@
 
 void opConstant()
 {
-    initVM();
-
     Chunk chunk;
     initChunk(&chunk);
 
@@ -32,7 +30,6 @@ void opConstant()
     disassembleChunk(&chunk, "test chunk");
     interpret(&chunk);
 
-    freeVM();
     freeChunk(&chunk);
 }
 
@@ -55,12 +52,18 @@ void opConstantLong()
     writeChunk(&chunk, OP_RETURN, line);
 
     disassembleChunk(&chunk, "test constant long");
+    interpret(&chunk);
+
     freeChunk(&chunk);
 }
 
 int main(int argc, const char *argv[])
 {
+    initVM();
+
     opConstant();
     opConstantLong();
+
+    freeVM();
     return 0;
 }

@@ -71,6 +71,16 @@ static InterpretResult run()
             push(constant);
             break;
         }
+        case OP_CONSTANT_LONG:
+        {
+            Value constant1 = READ_CONSTANT();
+            Value constant2 = READ_CONSTANT();
+            Value constant3 = READ_CONSTANT();
+            push(constant1);
+            push(constant2);
+            push(constant3);
+            break;
+        }
         case OP_ADD:
         {
             BINARY_OP(+);
