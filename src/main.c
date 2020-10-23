@@ -3,10 +3,8 @@
 #include "debug.h"
 #include "vm.h"
 
-int main(int argc, const char *argv[])
+void mainChunk()
 {
-    initVM();
-
     Chunk chunk;
     initChunk(&chunk);
 
@@ -32,7 +30,15 @@ int main(int argc, const char *argv[])
     disassembleChunk(&chunk, "test chunk");
     interpret(&chunk);
 
-    freeVM();
     freeChunk(&chunk);
+}
+
+int main(int argc, const char *argv[])
+{
+    initVM();
+
+    mainChunk();
+
+    freeVM();
     return 0;
 }
