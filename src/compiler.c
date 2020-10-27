@@ -151,7 +151,7 @@ static void endCompiler()
 {
     emitReturn();
 #ifdef DEBUG_PRINT_CODE
-    if(!parser.hadError)
+    if (!parser.hadError)
     {
         disassembleChunk(currentChunk(), "code");
     }
@@ -276,7 +276,7 @@ static void parsePrecedence(Precedence precedence)
 
     prefixRule();
 
-    while(precedence <= getRule(parser.current.type)->precedence)
+    while (precedence <= getRule(parser.current.type)->precedence)
     {
         advance();
         ParseFn infixRule = getRule(parser.previous.type)->infix;
@@ -284,7 +284,7 @@ static void parsePrecedence(Precedence precedence)
     }
 }
 
-static ParseRule* getRule(TokenType type)
+static ParseRule *getRule(TokenType type)
 {
     return &rules[type];
 }
