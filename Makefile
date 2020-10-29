@@ -2,12 +2,13 @@ build_dir = build
 source_dir = src
 flags = -c -o
 
-main: main.o memory.o scanner.o compiler.o value.o chunk.o vm.o debug.o
+main: main.o memory.o scanner.o value.o object.o compiler.o chunk.o vm.o debug.o
 	@cc -o $(build_dir)/main      \
 		$(build_dir)/memory.o     \
 		$(build_dir)/scanner.o    \
-		$(build_dir)/compiler.o   \
 		$(build_dir)/value.o      \
+		$(build_dir)/object.o     \
+		$(build_dir)/compiler.o   \
 		$(build_dir)/chunk.o      \
 		$(build_dir)/vm.o         \
 		$(build_dir)/debug.o      \
@@ -52,6 +53,11 @@ compiler.o: $(source_dir)/compiler.c $(source_dir)/compiler.h
 	@cc $(flags) \
 		$(build_dir)/compiler.o \
 		$(source_dir)/compiler.c
+
+object.o: $(source_dir)/object.c $(source_dir)/object.h
+	@cc $(flags) \
+		$(build_dir)/object.o \
+		$(source_dir)/object.c
 
 clean:
 	@rm $(build_dir)/*.o
