@@ -11,5 +11,6 @@
 #define DEBUG_TRACE_EXECUTION
 
 typedef uint8_t Byte;
+typedef uint32_t Hash;
 
 #endif

@@ -27,6 +27,7 @@ struct sObjString
     Obj obj;
     int length;
     char *chars;
+    Hash hash;
 };
 
 ObjString *takeString(char *chars, int length);
