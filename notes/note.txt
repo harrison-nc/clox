@@ -1,0 +1,11 @@
+== table.c: adjustCapacity ==
+//? Why is the Entry array not created on the stack since is known at creation time?
+//* Answer: because the array will be resized when the hash table is resized to accomodate more entries.
+//? Is it not possible to resize stack allocated arrays?
+//todo 1a: Check whether its possible in 'c' to resize stackallocated array.
+//todo 1b: If '1a' is true, check which is more performant resizingarray on the stack or on the heap.
+//todo 1c: If '1a' is true, why is it not used here? Is there any disadvantage of using stack allocated array to implement a hash table?
+
+== table.c: adjustCapacity ==
+//? Why is the entries in the table not added to the new array when its entrys' keys and values are been initialized to NULL and NIL_VAL, respectively?
+//* -- this would avoid iterating the new array second time to copy the value in the table into it.
