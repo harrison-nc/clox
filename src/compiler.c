@@ -519,7 +519,7 @@ static void statement()
     {
         printStatement();
     }
-    else if (match(TOKEN_LEFT_PAREN))
+    else if (match(TOKEN_LEFT_BRACE))
     {
         beginScope();
         block();
