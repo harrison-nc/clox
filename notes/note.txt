@@ -9,3 +9,9 @@
 == table.c: adjustCapacity ==
 //? Why is the entries in the table not added to the new array when its entrys' keys and values are been initialized to NULL and NIL_VAL, respectively?
 //* -- this would avoid iterating the new array second time to copy the value in the table into it.
+
+# Chapter 21:
+## Print Statement
+//* 1) "You can also sum the stack effects of a series of instructions. When you add the stack effects of any series of instructions compiled from an expression, it will total one. Each expression leaves one result value on the stack."
+//* 2) All the binaray expressions have a stack effect of -1. Any series of instructions that comprises of binary operations should sum to a negative value.
+//? How is statement (1) above correct?
