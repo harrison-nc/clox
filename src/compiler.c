@@ -187,6 +187,16 @@ static void endCompiler()
 #endif
 }
 
+static void beginScope()
+{
+    current->scopeDepth++;
+}
+
+static void endScope()
+{
+    current->scopeDepth--;
+}
+
 static void initCompilier(Compiler *compiler)
 {
     compiler->localCount = 0;
@@ -420,6 +430,16 @@ static void expression()
     parsePrecedence(PREC_ASSIGNMENT);
 }
 
+static void block()
+{
+    while (!chek(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF))
+    {
+        declaration();
+    }
+
+    consume(TOKEN_RIGHT_BRACE, "Expect '}' after block.");
+}
+
 static void varDeclaration()
 {
     Byte global = parseVariable("Expect variable name.");
@@ -498,6 +518,12 @@ static void statement()
     if (match(TOKEN_PRINT))
     {
         printStatement();
+    }
+    else if (match(TOKEN_LEFT_PAREN))
+    {
+        beginScope();
+        block();
+        endScope();
     }
     else
     {
