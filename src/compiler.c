@@ -41,7 +41,22 @@ typedef struct
     Precedence precedence;
 } ParseRule;
 
+typedef struct
+{
+    Token name;
+    int depth;
+} Local;
+
+typedef struct
+{
+    Local locals[UINT8_COUNT];
+    int localCount;
+    int scopeDepth;
+} Compiler;
+
 Parser parser;
+
+Compiler *current = NULL;
 
 Chunk *compilingChunk;
 
@@ -170,6 +185,13 @@ static void endCompiler()
         disassembleChunk(currentChunk(), "code");
     }
 #endif
+}
+
+static void initCompilier(Compiler *compiler)
+{
+    compiler->localCount = 0;
+    compiler->scopeDepth = 0;
+    current = compiler;
 }
 
 static void expression();
@@ -486,6 +508,8 @@ static void statement()
 bool compile(const char *source, Chunk *chunk)
 {
     initScanner(source);
+    Compiler compiler;
+    initCompilier(&compiler);
     compilingChunk = chunk;
 
     parser.hadError = false;
