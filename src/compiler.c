@@ -432,7 +432,7 @@ static void expression()
 
 static void block()
 {
-    while (!chek(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF))
+    while (!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF))
     {
         declaration();
     }
