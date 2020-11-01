@@ -674,6 +674,10 @@ static void statement()
     {
         ifStatement();
     }
+    else if (match(TOKEN_TRACE))
+    {
+        emitByte(OP_TRACE);
+    }
     else if (match(TOKEN_LEFT_BRACE))
     {
         beginScope();

@@ -49,6 +49,7 @@ typedef enum
     TOKEN_VAR,
     TOKEN_WHILE,
 
+    TOKEN_TRACE,
     TOKEN_ERROR,
     TOKEN_EOF
 } TokenType;

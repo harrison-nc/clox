@@ -17,6 +17,7 @@ typedef struct
     Table globals;
     Table strings;
     Obj *objects;
+    bool debugging;
 } VM;
 
 typedef enum
