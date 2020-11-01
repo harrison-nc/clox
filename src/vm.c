@@ -66,6 +66,7 @@ void initVM()
 {
     resetStack();
     vm.objects = NULL;
+    vm.debugging = false;
     initTable(&vm.globals);
     initTable(&vm.strings);
 
@@ -195,17 +196,20 @@ static InterpretResult run()
     for (;;)
     {
 #ifdef DEBUG_TRACE_EXECUTION
-        printf("        ");
-        for (Value *slot = vm.stack; slot < vm.stackTop; slot++)
+        if (vm.debugging)
         {
-            printf("[ ");
-            printValue(*slot);
-            printf(" ]");
-        }
-        printf("\n");
+            printf("        ");
+            for (Value *slot = vm.stack; slot < vm.stackTop; slot++)
+            {
+                printf("[ ");
+                printValue(*slot);
+                printf(" ]");
+            }
+            printf("\n");
 
-        disassembleInstruction(&frame->function->chunk,
-                               (int)(frame->ip - frame->function->chunk.code));
+            disassembleInstruction(&frame->function->chunk,
+                                   (int)(frame->ip - frame->function->chunk.code));
+        }
 #endif
 
         Byte instruction;
@@ -391,6 +395,12 @@ static InterpretResult run()
             push(result);
 
             frame = &vm.frames[vm.frameCount - 1];
+            break;
+        }
+        case OP_TRACE:
+        {
+            // Toggle debugging.
+            vm.debugging = !vm.debugging;
             break;
         }
         }

@@ -248,6 +248,25 @@ static Token string()
     return makeToken(TOKEN_STRING);
 }
 
+static Token options()
+{
+    while (isAlpha(peek()) || isDigit(peek()))
+    {
+        advance();
+    }
+
+    if (checkKeyword(1, 5, "trace", TOKEN_TRACE) == TOKEN_IDENTIFIER)
+    {
+        return errorToken("Invalid Identifier.");
+    }
+    else
+    {
+        return makeToken(TOKEN_TRACE);
+    }
+
+    return makeToken(identifierType());
+}
+
 Token scanToken()
 {
     skipWhitespace();
@@ -266,6 +285,10 @@ Token scanToken()
     if (isDigit(c))
     {
         return number();
+    }
+    if (c == '#')
+    {
+        return options();
     }
 
     switch (c)
