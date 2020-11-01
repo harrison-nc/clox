@@ -228,6 +228,22 @@ static void endScope()
     }
 }
 
+static void endScopeN()
+{
+    current->scopeDepth--;
+
+    int count = 0;
+    while (current->localCount > 0 &&
+           current->locals[current->localCount - 1].depth >
+               current->scopeDepth)
+    {
+        current->localCount--;
+        count++;
+    }
+
+    emitBytes(OP_POP_N, (Byte)count);
+}
+
 static void initCompilier(Compiler *compiler)
 {
     compiler->localCount = 0;
@@ -682,7 +698,7 @@ static void statement()
     {
         beginScope();
         block();
-        endScope();
+        endScopeN();
     }
     else
     {
