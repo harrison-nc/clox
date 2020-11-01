@@ -141,6 +141,16 @@ static InterpretResult run()
         case OP_POP:
             pop();
             break;
+        case OP_POP_N:
+        {
+            Byte count = READ_BYTE();
+            while (count > 0)
+            {
+                pop();
+                count--;
+            }
+            break;
+        }
         case OP_GET_LOCAL:
         {
             Byte slot = READ_BYTE();
