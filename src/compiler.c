@@ -46,6 +46,7 @@ typedef struct
 {
     Token name;
     int depth;
+    bool isFinal;
 } Local;
 
 typedef struct
@@ -55,11 +56,19 @@ typedef struct
     int scopeDepth;
 } Compiler;
 
+typedef struct
+{
+    bool isFinal;
+    int index;
+} Variable;
+
 Parser parser;
 
 Compiler *current = NULL;
 
 Chunk *compilingChunk;
+
+Variable currentVariable;
 
 static Chunk *currentChunk()
 {
@@ -257,7 +266,7 @@ static void declaration();
 static ParseRule *getRule(TokenType type);
 static void parsePrecedence(Precedence precedence);
 static Byte identifierConstant(Token *name);
-static int resolveLocal(Compiler *compiler, Token *name);
+static Local *resolveLocal(Compiler *compiler, Token *name);
 
 static void binary(bool canAssign)
 {
@@ -345,7 +354,11 @@ static void string(bool canAssign)
 static void namedVariable(Token name, bool canAssign)
 {
     Byte getOp, setOp;
-    int arg = resolveLocal(current, &name);
+
+    Local *local = resolveLocal(current, &name);
+    int arg = local == NULL ? -1 : currentVariable.index;
+    currentVariable.index = -1;
+
     if (arg != -1)
     {
         getOp = OP_GET_LOCAL;
@@ -360,6 +373,10 @@ static void namedVariable(Token name, bool canAssign)
 
     if (canAssign && match(TOKEN_EQUAL))
     {
+        if (local != NULL && local->isFinal)
+        {
+            error("Constant variable cannot be assigned.");
+        }
         expression();
         emitBytes(setOp, (Byte)arg);
     }
@@ -425,6 +442,7 @@ ParseRule rules[] = {
     [TOKEN_FOR]           = {NULL,     NULL,   PREC_NONE},
     [TOKEN_FUN]           = {NULL,     NULL,   PREC_NONE},
     [TOKEN_IF]            = {NULL,     NULL,   PREC_NONE},
+    [TOKEN_LET]           = {NULL,     NULL,   PREC_NONE},
     [TOKEN_NIL]           = {literal,  NULL,   PREC_NONE},
     [TOKEN_OR]            = {NULL,     NULL,   PREC_NONE},
     [TOKEN_PRINT]         = {NULL,     NULL,   PREC_NONE},
@@ -477,7 +495,7 @@ static bool identifiersEqual(Token *a, Token *b)
     return memcmp(a->start, b->start, a->length) == 0;
 }
 
-static int resolveLocal(Compiler *compiler, Token *name)
+static Local *resolveLocal(Compiler *compiler, Token *name)
 {
     for (int i = compiler->localCount - 1; i >= 0; i--)
     {
@@ -488,11 +506,12 @@ static int resolveLocal(Compiler *compiler, Token *name)
             {
                 error("Can't read local variable in its own initializer.");
             }
-            return i;
+            currentVariable.index = i;
+            return local;
         }
     }
 
-    return -1;
+    return NULL;
 }
 
 static void addLocal(Token name)
@@ -506,6 +525,7 @@ static void addLocal(Token name)
     Local *local = &current->locals[current->localCount++];
     local->name = name;
     local->depth = -1;
+    local->isFinal = currentVariable.isFinal;
 }
 
 static void declareVariable()
@@ -584,6 +604,11 @@ static void block()
 
 static void varDeclaration()
 {
+    if (currentVariable.isFinal && current->scopeDepth == 0)
+    {
+        error("Cannot declare a constant variable in global scope.");
+    }
+
     Byte global = parseVariable("Expect variable name.");
 
     if (match(TOKEN_EQUAL))
@@ -592,6 +617,11 @@ static void varDeclaration()
     }
     else
     {
+        if (currentVariable.isFinal)
+        {
+            error("Constant variable declaration must have an initializer.");
+        }
+
         emitByte(OP_NIL);
     }
     consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
@@ -655,6 +685,7 @@ static void synchronize()
         case TOKEN_WHILE:
         case TOKEN_PRINT:
         case TOKEN_RETURN:
+        case TOKEN_LET:
             return;
         default:
             // do nothing.
@@ -670,6 +701,13 @@ static void declaration()
     if (match(TOKEN_VAR))
     {
         varDeclaration();
+    }
+    else if (match(TOKEN_LET))
+    {
+        bool value = currentVariable.isFinal;
+        currentVariable.isFinal = true;
+        varDeclaration();
+        currentVariable.isFinal = value;
     }
     else
     {
@@ -712,6 +750,11 @@ bool compile(const char *source, Chunk *chunk)
     Compiler compiler;
     initCompilier(&compiler);
     compilingChunk = chunk;
+
+    Variable variable;
+    variable.isFinal = false;
+    variable.index = -1;
+    currentVariable = variable;
 
     parser.hadError = false;
     parser.panicMode = false;
