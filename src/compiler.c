@@ -662,6 +662,8 @@ static void synchronize()
             // do nothing.
             ;
         }
+
+        advance();
     }
 }
 
@@ -671,7 +673,7 @@ static void declaration()
     {
         varDeclaration();
     }
-    if (match(TOKEN_LET))
+    else if (match(TOKEN_LET))
     {
         constantVarDeclaration();
     }
