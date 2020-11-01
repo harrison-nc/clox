@@ -46,7 +46,14 @@ typedef struct
 {
     Token name;
     int depth;
+    bool isFinal;
 } Local;
+
+typedef struct
+{
+    Local *local;
+    int index;
+} Variable;
 
 typedef struct
 {
@@ -235,7 +242,7 @@ static void declaration();
 static ParseRule *getRule(TokenType type);
 static void parsePrecedence(Precedence precedence);
 static Byte identifierConstant(Token *name);
-static int resolveLocal(Compiler *compiler, Token *name);
+static Variable resolveLocal(Compiler *compiler, Token *name);
 
 static void binary(bool canAssign)
 {
@@ -323,9 +330,17 @@ static void string(bool canAssign)
 static void namedVariable(Token name, bool canAssign)
 {
     Byte getOp, setOp;
-    int arg = resolveLocal(current, &name);
+    Variable variable = resolveLocal(current, &name);
+    int arg = variable.index;
     if (arg != -1)
     {
+        if (variable.local->isFinal)
+        {
+            if (check(TOKEN_EQUAL))
+            {
+                error("Cannot reassign a constant variable.");
+            }
+        }
         getOp = OP_GET_LOCAL;
         setOp = OP_SET_LOCAL;
     }
@@ -403,6 +418,7 @@ ParseRule rules[] = {
     [TOKEN_FOR]           = {NULL,     NULL,   PREC_NONE},
     [TOKEN_FUN]           = {NULL,     NULL,   PREC_NONE},
     [TOKEN_IF]            = {NULL,     NULL,   PREC_NONE},
+    [TOKEN_LET]           = {NULL,     NULL,   PREC_NONE},
     [TOKEN_NIL]           = {literal,  NULL,   PREC_NONE},
     [TOKEN_OR]            = {NULL,     NULL,   PREC_NONE},
     [TOKEN_PRINT]         = {NULL,     NULL,   PREC_NONE},
@@ -455,8 +471,9 @@ static bool identifiersEqual(Token *a, Token *b)
     return memcmp(a->start, b->start, a->length) == 0;
 }
 
-static int resolveLocal(Compiler *compiler, Token *name)
+static Variable resolveLocal(Compiler *compiler, Token *name)
 {
+    Variable var;
     for (int i = compiler->localCount - 1; i >= 0; i--)
     {
         Local *local = &compiler->locals[i];
@@ -466,14 +483,17 @@ static int resolveLocal(Compiler *compiler, Token *name)
             {
                 error("Can't read local variable in its own initializer.");
             }
-            return i;
+            var.local = local;
+            var.index = i;
+            return var;
         }
     }
-
-    return -1;
+    var.local = NULL;
+    var.index = -1;
+    return var;
 }
 
-static void addLocal(Token name)
+static void addLocal(Token name, bool final)
 {
     if (current->localCount == UINT8_COUNT)
     {
@@ -484,9 +504,10 @@ static void addLocal(Token name)
     Local *local = &current->locals[current->localCount++];
     local->name = name;
     local->depth = -1;
+    local->isFinal = final;
 }
 
-static void declareVariable()
+static void declareVariable(bool final)
 {
     // Global variables are implicitly declared.
     if (current->scopeDepth == 0)
@@ -508,14 +529,14 @@ static void declareVariable()
         }
     }
 
-    addLocal(*name);
+    addLocal(*name, final);
 }
 
-static Byte parseVariable(const char *errorMessage)
+static Byte parseVariable(const char *errorMessage, bool final)
 {
     consume(TOKEN_IDENTIFIER, errorMessage);
 
-    declareVariable();
+    declareVariable(final);
     if (current->scopeDepth > 0)
     {
         return 0;
@@ -562,7 +583,7 @@ static void block()
 
 static void varDeclaration()
 {
-    Byte global = parseVariable("Expect variable name.");
+    Byte global = parseVariable("Expect variable name.", false);
 
     if (match(TOKEN_EQUAL))
     {
@@ -575,6 +596,31 @@ static void varDeclaration()
     consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
 
     defineVariable(global);
+}
+
+static void constantVarDeclaration()
+{
+    if (current->scopeDepth == 0)
+    {
+        error("Cannot define a constant variable in global scope.");
+    }
+
+    // Add the variable name to compiler locals array.
+    Byte index = parseVariable("Expect variable name.", true);
+
+    // Expect an initializer.
+    if (match(TOKEN_EQUAL))
+    {
+        // Get initializer.
+        expression();
+        // Mark local constant variable as initialized.
+        defineVariable(index);
+    }
+    else
+    {
+        error("Constant declaration must have an initializer.");
+    }
+    consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
 }
 
 static void expressionStatement()
@@ -605,6 +651,7 @@ static void synchronize()
         case TOKEN_CLASS:
         case TOKEN_FUN:
         case TOKEN_VAR:
+        case TOKEN_LET:
         case TOKEN_FOR:
         case TOKEN_IF:
         case TOKEN_WHILE:
@@ -623,6 +670,10 @@ static void declaration()
     if (match(TOKEN_VAR))
     {
         varDeclaration();
+    }
+    if (match(TOKEN_LET))
+    {
+        constantVarDeclaration();
     }
     else
     {
