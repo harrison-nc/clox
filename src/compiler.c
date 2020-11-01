@@ -599,6 +599,8 @@ static void synchronize()
             // do nothing.
             ;
         }
+
+        advance();
     }
 }
 
