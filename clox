@@ -1,1 +1,23 @@
-build/main $@
+function build() {
+    make
+}
+
+function sample() {
+  # if [ -n $1 ]
+  # then test/$1;
+  # else test/byte;
+  # fi
+  test/$1;
+}
+
+main() {
+    build/main $@
+}
+
+buildtest() {
+   make test/$1
+}
+
+clox () {
+  ./clox $@
+}
