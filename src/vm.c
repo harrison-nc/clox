@@ -259,6 +259,12 @@ static InterpretResult run()
             printf("\n");
             break;
         }
+        case OP_JUMP:
+        {
+            Short offset = READ_SHORT();
+            vm.ip += offset;
+            break;
+        }
         case OP_JUMP_IF_FALSE:
         {
             Short offset = READ_SHORT();
