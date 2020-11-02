@@ -13,6 +13,7 @@
 #define UINT8_COUNT (UINT8_MAX + 1)
 
 typedef uint8_t Byte;
+typedef uint16_t Short;
 typedef uint32_t Hash;
 
 #endif
