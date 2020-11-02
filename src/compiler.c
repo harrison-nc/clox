@@ -273,7 +273,14 @@ static void endScopeN()
         count++;
     }
 
-    emitBytes(OP_POP_N, (Byte)count);
+    if (count == 1)
+    {
+        emitByte(OP_POP);
+    }
+    else if (count > 1)
+    {
+        emitBytes(OP_POP_N, (Byte)count);
+    }
 }
 
 static void initCompiler(Compiler *compiler, FunctionType type)
