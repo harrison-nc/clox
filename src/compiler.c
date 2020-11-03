@@ -160,7 +160,7 @@ static void emitLoop(int loopStart)
     emitByte(OP_LOOP);
 
     int offset = currentChunk()->count - loopStart + 2;
-    if (offset > UINI16_MAX)
+    if (offset > UINT16_MAX)
     {
         error("Loop body too large.");
     }
