@@ -446,7 +446,7 @@ ParseRule rules[] = {
     [TOKEN_FUN]           = {NULL,     NULL,   PREC_NONE},
     [TOKEN_IF]            = {NULL,     NULL,   PREC_NONE},
     [TOKEN_NIL]           = {literal,  NULL,   PREC_NONE},
-    [TOKEN_OR]            = {NULL,     or_,    PREC_NONE},
+    [TOKEN_OR]            = {NULL,     or_,    PREC_OR},
     [TOKEN_PRINT]         = {NULL,     NULL,   PREC_NONE},
     [TOKEN_RETURN]        = {NULL,     NULL,   PREC_NONE},
     [TOKEN_SUPER]         = {NULL,     NULL,   PREC_NONE},
@@ -656,9 +656,6 @@ static void forStatement()
         exitJump = emitJump(OP_JUMP_IF_FALSE);
         emitByte(OP_POP); // Condition.
     }
-
-    consume(TOKEN_SEMICOLON, "Expect ';'.");
-    consume(TOKEN_RIGHT_PAREN, "Expect ')' after for clauses.");
 
     if (!match(TOKEN_RIGHT_PAREN))
     {
