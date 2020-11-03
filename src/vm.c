@@ -274,6 +274,12 @@ static InterpretResult run()
             }
             break;
         }
+        case OP_LOOP:
+        {
+            Short offset = READ_SHORT();
+            vm.ip -= offset;
+            break;
+        }
         case OP_RETURN:
         {
             // Exit interpreter.
