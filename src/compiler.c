@@ -635,7 +635,7 @@ static void forStatement()
     {
         // No initializer.
     }
-    else if(match(TOKEN_VAR))
+    else if (match(TOKEN_VAR))
     {
         varDeclaration();
     }
