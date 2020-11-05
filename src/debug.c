@@ -6,7 +6,7 @@
 
 void disassembleChunk(Chunk *chunk, const char *name)
 {
-    printf("\n== %s ==\n", name);
+    printf("== %s ==\n", name);
 
     for (int offset = 0; offset < chunk->count;)
     {
