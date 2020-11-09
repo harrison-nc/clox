@@ -260,7 +260,7 @@ static void endScope()
     }
 }
 
-static void initCompilier(Compiler *compiler, FunctionType type)
+static void initCompiler(Compiler *compiler, FunctionType type)
 {
     compiler->enclosing = current;
     compiler->function = NULL;
@@ -668,7 +668,7 @@ static void block()
 static void function(FunctionType type)
 {
     Compiler compiler;
-    initCompilier(&compiler, type);
+    initCompiler(&compiler, type);
     beginScope();
 
     // Compile the parameter list.
@@ -942,7 +942,7 @@ ObjFunction *compile(const char *source)
 {
     initScanner(source);
     Compiler compiler;
-    initCompilier(&compiler, TYPE_SCRIPT);
+    initCompiler(&compiler, TYPE_SCRIPT);
 
     parser.hadError = false;
     parser.panicMode = false;
