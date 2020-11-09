@@ -147,7 +147,7 @@ static InterpretResult run()
 #define READ_BYTE() (*frame->ip++)
 #define READ_SHORT() \
     (frame->ip += 2, \
-    (Short)((frame->ip[-2] << 8) | frame->ip[-1]))
+     (Short)((frame->ip[-2] << 8) | frame->ip[-1]))
 #define READ_CONSTANT() \
     (frame->function->chunk.constants.values[READ_BYTE()])
 #define READ_STRING() AS_STRING(READ_CONSTANT())
