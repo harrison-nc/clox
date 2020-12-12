@@ -250,12 +250,12 @@ static Token string()
 
 static Token options()
 {
-    while (isAlpha(peek()) || isDigit(peek()))
+    while (isAlpha(peek()))
     {
         advance();
     }
 
-    if (checkKeyword(1, 5, "trace", TOKEN_TRACE) == TOKEN_IDENTIFIER)
+    if (checkKeyword(2, 5, "trace", TOKEN_TRACE) == TOKEN_IDENTIFIER)
     {
         return errorToken("Invalid Identifier.");
     }
@@ -286,8 +286,11 @@ Token scanToken()
     {
         return number();
     }
-    if (c == '#')
+    if (c == '@' && peek() == '@')
     {
+        // Consume the second '@'
+        advance();
+
         return options();
     }
 
