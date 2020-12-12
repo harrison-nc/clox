@@ -2,7 +2,7 @@ build_dir = build
 source_dir = src
 flags = -c -o
 
-main: main.o memory.o scanner.o value.o table.o object.o compiler.o chunk.o vm.o debug.o
+main: build main.o memory.o scanner.o value.o table.o object.o compiler.o chunk.o vm.o debug.o
 	@cc -o $(build_dir)/main      \
 		$(build_dir)/memory.o     \
 		$(build_dir)/scanner.o    \
@@ -64,6 +64,9 @@ table.o: $(source_dir)/table.c $(source_dir)/table.h
 	@cc $(flags) \
 		$(build_dir)/table.o \
 		$(source_dir)/table.c
+
+build:
+	@mkdir build
 
 clean:
 	@rm $(build_dir)/*.o
