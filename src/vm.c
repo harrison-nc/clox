@@ -8,9 +8,104 @@
 #include "debug.h"
 #include "object.h"
 #include "memory.h"
+#include "native.h"
 #include "vm.h"
 
 VM vm;
+bool functionCallError;
+
+static void runtimeError(const char *format, ...);
+void freeVM();
+
+static int numberCharCount(unsigned int num)
+{
+    int length = 0;
+    int quo = num;
+    do
+    {
+        quo /= 10;
+        num %= 10;
+        length++;
+    } while (quo > 0);
+
+    return length;
+}
+
+static Value stringify(Value value)
+{
+    switch (value.type)
+    {
+    case VAL_NIL:
+    {
+        char *chars = "nil";
+        return OBJ_VAL(copyString(chars, strlen(chars)));
+    }
+
+    case VAL_BOOL:
+    {
+        bool val = AS_BOOL(value);
+        char *valString = val ? "true" : "false";
+        return OBJ_VAL(copyString(valString, strlen(valString)));
+    }
+
+    case VAL_NUMBER:
+    {
+        double num = AS_NUMBER(value);
+        int count = numberCharCount(num) + 1;
+        char numStr[count];
+        sprintf(numStr, "%g", num);
+        return OBJ_VAL(copyString(numStr, count));
+    }
+
+    case VAL_OBJ:
+    {
+        Obj *obj = AS_OBJ(value);
+        ObjType type = obj->type;
+
+        switch (type)
+        {
+        case OBJ_STRING:
+            return value;
+
+        case OBJ_FUNCTION:
+        {
+            ObjFunction *function = AS_FUNCTION(value);
+            char funStr[function->name->length];
+            sprintf(funStr, "<fn %s>", function->name->chars);
+            return OBJ_VAL(copyString(funStr, strlen(funStr)));
+        }
+
+        case OBJ_NATIVE:
+        {
+            char *nativeStr = "<native fn>";
+            return OBJ_VAL(copyString(nativeStr, strlen(nativeStr)));
+        }
+        }
+    }
+    }
+    // Unreachable
+    runtimeError("Invalid object");
+    functionCallError = true;
+    return NIL_VAL;
+}
+
+static Value toStringNative(int argCount, Value *value)
+{
+    if (IS_NIL(*value))
+    {
+        runtimeError("Cannot convert nil to string");
+        functionCallError = true;
+        return *value;
+    }
+    return stringify(*value);
+}
+
+static Value printNative(int argCount, Value *arg)
+{
+    printValue(*arg);
+    printf("\n");
+    return NIL_VAL;
+}
 
 static Value clockNative(int argCount, Value *arg)
 {
@@ -71,6 +166,10 @@ void initVM()
     initTable(&vm.strings);
 
     defineNative("clock", clockNative);
+    defineNative("toString", toStringNative);
+    defineNative("println", printNative);
+
+    functionCallError = false;
 }
 
 void freeVM()
@@ -383,6 +482,10 @@ static InterpretResult run()
         {
             int argCount = READ_BYTE();
             if (!callValue(peek(argCount), argCount))
+            {
+                return INTERPRET_RUNTIME_ERROR;
+            }
+            if (functionCallError)
             {
                 return INTERPRET_RUNTIME_ERROR;
             }
