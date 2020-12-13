@@ -1,5 +1,6 @@
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
@@ -107,6 +108,20 @@ static Value printNative(int argCount, Value *arg)
     return NIL_VAL;
 }
 
+static Value exitNative(int argCount, Value *arg)
+{
+    freeVM();
+    if (IS_NUMBER(*arg))
+    {
+        double num = AS_NUMBER(*arg);
+        exit(num);
+    }
+    else
+    {
+        exit(0);
+    }
+}
+
 static Value clockNative(int argCount, Value *arg)
 {
     return NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
@@ -168,6 +183,7 @@ void initVM()
     defineNative("clock", clockNative);
     defineNative("toString", toStringNative);
     defineNative("println", printNative);
+    defineNative("exit", exitNative);
 
     functionCallError = false;
 }
